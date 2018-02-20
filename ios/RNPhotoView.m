@@ -295,21 +295,24 @@
         }
         _source = source;
         NSURL *imageURL = [NSURL URLWithString:uri];
-        @try {
-            UIImage *image = RCTImageFromLocalAssetURL(imageURL);
-            if (image) { // if local image
-                [self setImage:image];
-                if (_onPhotoViewerLoad) {
-                    _onPhotoViewerLoad(nil);
+
+        if (![[uri substringToIndex:4] isEqualToString:@"http"]) {
+            @try {
+                UIImage *image = RCTImageFromLocalAssetURL(imageURL);
+                if (image) { // if local image
+                    [self setImage:image];
+                    if (_onPhotoViewerLoad) {
+                        _onPhotoViewerLoad(nil);
+                    }
+                    if (_onPhotoViewerLoadEnd) {
+                        _onPhotoViewerLoadEnd(nil);
+                    }
+                    return;
                 }
-                if (_onPhotoViewerLoadEnd) {
-                    _onPhotoViewerLoadEnd(nil);
-                }
-                return;
             }
-        }
-        @catch (NSException *exception) {
-            NSLog(@"%@", exception.reason);
+            @catch (NSException *exception) {
+                NSLog(@"%@", exception.reason);
+            }
         }
 
         NSURLRequest *request = [[NSURLRequest alloc] initWithURL:imageURL];
